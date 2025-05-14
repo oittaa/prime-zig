@@ -7,6 +7,7 @@ pub fn main() !void {
     try benchmrk(16, 1_000_000, false);
     try benchmrk(64, 1_000_000, false);
     try benchmrk(128, 1_000_000, false);
+    try benchmrk(1024, 100_000, false);
     std.debug.print("Example 128-bit prime: {}\n", .{prime.generate(128)});
     std.debug.print("Example 128-bit safe prime: {}\n", .{prime.generateSafe(128)});
 }

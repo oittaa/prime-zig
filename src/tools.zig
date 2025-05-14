@@ -25,6 +25,18 @@ pub fn modPow(x: anytype, y: anytype, z: anytype) @TypeOf(z) {
 }
 
 // Function to check if a large unsigned integer is a perfect square.
+//
+// A significant fraction of non-squares can be quickly identified by checking
+// whether the input is a quadratic residue modulo small integers.
+//
+// The function first tests the input mod 256, which means just examining the
+// low byte. Only 44 different values occur for squares mod 256, so 82.8% of
+// inputs can be immediately identified as non-squares.
+//
+// Similar tests are done mod 9, 5, 7, 13, 17, and 97, for a total 99.62%.
+//
+// These moduli are chosen because they’re factors of 2^48-1, and such a
+// remainder can be quickly taken just using additions.
 pub fn isPerfectSquare(n: anytype) bool {
     // Handle trivial cases
     if (n < 0) return false;
@@ -35,32 +47,44 @@ pub fn isPerfectSquare(n: anytype) bool {
         0, 1, 4, 9, 16, 17, 25, 33, 36, 41, 49, 57, 64, 65, 68, 73, 81, 89, 97, 100, 105, 113, 121, 129, 132, 137, 144, 145, 153, 161, 164, 169, 177, 185, 193, 196, 201, 209, 217, 225, 228, 233, 241, 249 => {}, // Possible square endings
         else => return false, // Not possible
     }
-    rem = @intCast(n % 9);
+
+    const k_bitsize: u8 = 48;
+    const modulus = (1 << k_bitsize) - 1;
+    var current_val = n;
+    while (current_val > modulus) {
+        const high_part = current_val >> k_bitsize;
+        const low_part = current_val & modulus;
+        current_val = high_part + low_part;
+    }
+    if (current_val == modulus) current_val = 0;
+    const n_remainder: u64 = @intCast(current_val);
+
+    rem = @intCast(n_remainder % 9);
     switch (rem) {
         0, 1, 4, 7 => {},
         else => return false,
     }
-    rem = @intCast(n % 5);
+    rem = @intCast(n_remainder % 5);
     switch (rem) {
         0, 1, 4 => {},
         else => return false,
     }
-    rem = @intCast(n % 7);
+    rem = @intCast(n_remainder % 7);
     switch (rem) {
         0, 1, 2, 4 => {},
         else => return false,
     }
-    rem = @intCast(n % 13);
+    rem = @intCast(n_remainder % 13);
     switch (rem) {
         0, 1, 3, 4, 9, 10, 12 => {},
         else => return false,
     }
-    rem = @intCast(n % 17);
+    rem = @intCast(n_remainder % 17);
     switch (rem) {
         0, 1, 2, 4, 8, 9, 13, 15, 16 => {},
         else => return false,
     }
-    rem = @intCast(n % 97);
+    rem = @intCast(n_remainder % 97);
     switch (rem) {
         0, 1, 2, 3, 4, 6, 8, 9, 11, 12, 16, 18, 22, 24, 25, 27, 31, 32, 33, 35, 36, 43, 44, 47, 48, 49, 50, 53, 54, 61, 62, 64, 65, 66, 70, 72, 73, 75, 79, 81, 85, 86, 88, 89, 91, 93, 94, 95, 96 => {},
         else => return false,

@@ -1,2 +1,8 @@
+### Zig ###
 .zig-cache/
 zig-out/
+
+### Python ###
+__pycache__/
+*.py[cod]
+*$py.class
