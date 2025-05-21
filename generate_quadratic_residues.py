@@ -3,7 +3,7 @@
 # https://mathworld.wolfram.com/QuadraticResidue.html
 # https://en.wikipedia.org/wiki/Quadratic_residue
 
-moduli = (256, 9, 5, 7, 13, 17, 97)
+moduli = (256, 9, 5, 7, 13, 17, 97, 241, 257, 673)
 quadratic_residues = {}
 
 for m in moduli:
